@@ -1,4 +1,4 @@
-module github.com/jan-re/pipelines_prep
+module github.com/jan-re/workshop_gha/app_sender
 
 go 1.24.2
 

@@ -14,11 +14,16 @@ const (
 )
 
 var (
-	port   = os.Getenv(portEnvName)
 	logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{AddSource: false}))
 )
 
 func main() {
+	port, ok := os.LookupEnv(portEnvName)
+	if !ok {
+		logger.Error("Port could not be retrieved from env. Shutting down.", slog.String("envName", portEnvName))
+		os.Exit(1)
+	}
+
 	logger.Info("Application starting. Creating server and router.", slog.String("port", port))
 
 	mux := &http.ServeMux{}
