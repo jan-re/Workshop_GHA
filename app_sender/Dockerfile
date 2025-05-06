@@ -1,3 +1,5 @@
+ARG PORT
+
 FROM docker.io/library/golang:1.24.2-alpine3.20 AS build-stage
 
 WORKDIR /app
@@ -13,6 +15,6 @@ WORKDIR /app
 
 COPY --from=build-stage /app/sender sender
 
-EXPOSE 54321
+EXPOSE $PORT
 
 ENTRYPOINT ["/app/sender"]

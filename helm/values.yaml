@@ -1,4 +1,4 @@
-# Default values for senderapp.
+# Default values for workshopApp.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -103,21 +103,21 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
-# Additional volumes on the output Deployment definition.
-volumes: []
-# - name: foo
-#   secret:
-#     secretName: mysecret
-#     optional: false
-
-# Additional volumeMounts on the output Deployment definition.
-volumeMounts: []
-# - name: foo
-#   mountPath: "/etc/foo"
-#   readOnly: true
-
 nodeSelector: {}
 
 tolerations: []
 
 affinity: {}
+
+env:
+  port:
+    name: "PORT"
+    value: "54321"
+
+names:
+  sender: "appSender"
+  receiver: "appReceiver"
+
+imagePaths:
+  sender: ghcr.io/jan-re/senderApp:0.0.1
+  receiver: ghcr.io/jan-re/receiverApp:0.0.1

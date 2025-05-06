@@ -10,10 +10,11 @@ import (
 )
 
 const (
-	port = "54321"
+	portEnvName = "PORT"
 )
 
 var (
+	port   = os.Getenv(portEnvName)
 	logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{AddSource: false}))
 )
 
