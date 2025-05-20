@@ -2,15 +2,13 @@ package main
 
 import (
 	"log/slog"
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 const (
-	port = "54321"
+	targetServiceEnvName = "TARGET_SERVICE"
 )
 
 var (
@@ -18,29 +16,17 @@ var (
 )
 
 func main() {
-	logger.Info("Application starting. Creating server and router.", slog.String("port", port))
-
-	mux := &http.ServeMux{}
-	mux.Handle("GET /api/v1/weather", http.HandlerFunc(weatherHandler))
-	mux.Handle("/live", http.HandlerFunc(probeHandler))
-	mux.Handle("/ready", http.HandlerFunc(probeHandler))
-
-	server := http.Server{
-		Addr:           ":" + port,
-		Handler:        mux,
-		MaxHeaderBytes: http.DefaultMaxHeaderBytes,
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
+	targetService, ok := os.LookupEnv(targetServiceEnvName)
+	if !ok {
+		logger.Error("Target service could not be retrieved from env. Shutting down.", slog.String("envName", targetServiceEnvName))
+		os.Exit(1)
 	}
 
-	logger.Info("Application has started successfully. Server is listening.", slog.String("port", port))
+	logger.Info("Application starting. Creating request emitter.")
 
-	go func() {
-		if err := server.ListenAndServe(); err != nil {
-			logger.Error("Server error. Application shutting down.", slog.String("err", err.Error()))
-			os.Exit(1)
-		}
-	}()
+	go handleProbes()
+
+	go emit(targetService)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
