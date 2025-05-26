@@ -1,0 +1,54 @@
+name: Integration workflow
+
+concurrency:
+  group: ci-${{ github.ref_name }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "main"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+  pull-requests: write
+
+jobs:
+  deploy:
+    name: Deploy to cluster
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: v1.28.6
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.18.0
+
+      - name: Create cluster
+        uses: AbsaOSS/k3d-action@v2.4.0
+        with:
+          cluster-name: test-cluster-1
+          args: >-
+            -p "8083:80@agent:0:direct"
+            -p "8443:443@agent:0:direct"
+            -p "5053:53/udp@agent:0:direct"
+            --agents 3
+            --no-lb
+            --image docker.io/rancher/k3s:v1.28.6-k3s1
+            --k3s-arg "--disable=traefik,servicelb,metrics-server@server:*"
+
+      - name: Apply Helm Chart on k3d
+        run: |
+          helm install appworkshop oci://ghcr.io/jan-re/charts/appworkshop \
+          --debug \
+          --timeout 60s \
+          --wait
