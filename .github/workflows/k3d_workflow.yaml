@@ -66,10 +66,7 @@ jobs:
         run: kubectl logs "$(kubectl get pods | grep appreceiver | awk '{print $1}')"
 
       - name: Validate app_sender logs
-        run: kubectl logs "$(kubectl get pods | grep appsender | awk '{print $1}')" | grep "Request received. Sending positive response."
+        run: kubectl logs "$(kubectl get pods | grep appsender | awk '{print $1}')" | grep "Request sent. Received positive response."
 
       - name: Validate app_receiver logs
-        run: kubectl logs "$(kubectl get pods | grep appreceiver | awk '{print $1}')" | grep "Request sent. Received positive response."
-
-      - name: Validate failure
-        run: kubectl logs "$(kubectl get pods | grep appreceiver | awk '{print $1}')" | grep "Blabla."
+        run: kubectl logs "$(kubectl get pods | grep appreceiver | awk '{print $1}')" | grep "Request received. Sending positive response."
