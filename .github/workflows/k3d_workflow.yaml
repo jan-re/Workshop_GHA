@@ -52,3 +52,15 @@ jobs:
           --debug \
           --timeout 60s \
           --wait
+
+      - name: Sleep a bit
+        run: sleep 15s
+
+      - name: Get pods
+        run: kubectl get pods -o wide
+
+      - name: Get app_sender logs
+        run: kubectl logs "$(kubectl get pods | grep appsender | awk '{print $1}')"
+
+      - name: Get app_receiver logs
+        run: kubectl logs "$(kubectl get pods | grep appreceiver | awk '{print $1}')"
